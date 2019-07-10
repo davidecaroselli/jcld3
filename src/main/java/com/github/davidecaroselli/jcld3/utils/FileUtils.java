@@ -1,4 +1,4 @@
-package it.davidecaroselli.jcld3.utils;
+package com.github.davidecaroselli.jcld3.utils;
 
 import java.io.File;
 import java.io.IOException;

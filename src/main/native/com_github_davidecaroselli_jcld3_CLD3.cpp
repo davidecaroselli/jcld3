@@ -1,4 +1,4 @@
-#include "javah/it_davidecaroselli_jcld3_CLD3.h"
+#include "javah/com_github_davidecaroselli_jcld3_CLD3.h"
 #include "base.h"
 #include "nnet_language_identifier.h"
 #include "jniutils.h"
@@ -43,24 +43,24 @@ void CopyResults(JNIEnv *jvm, const vector<NNetLanguageIdentifier::Result> &sour
 }
 
 /*
- * Class:     it_davidecaroselli_jcld3_CLD3
+ * Class:     com_github_davidecaroselli_jcld3_CLD3
  * Method:    init
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_it_davidecaroselli_jcld3_CLD3_init(JNIEnv *jvm, jobject jself) {
+JNIEXPORT jlong JNICALL Java_com_github_davidecaroselli_jcld3_CLD3_init(JNIEnv *jvm, jobject jself) {
     return (jlong) new NNetLanguageIdentifier(
             /*min_num_bytes=*/0,
-            /*max_num_bytes=*/it_davidecaroselli_jcld3_CLD3_MAX_NUM_BYTES
+            /*max_num_bytes=*/com_github_davidecaroselli_jcld3_CLD3_MAX_NUM_BYTES
     );
 }
 
 /*
- * Class:     it_davidecaroselli_jcld3_CLD3
+ * Class:     com_github_davidecaroselli_jcld3_CLD3
  * Method:    findLanguage
- * Signature: (J[BLit/davidecaroselli/jcld3/XLanguageResult;)V
+ * Signature: (J[BLcom/github/davidecaroselli/jcld3/XLanguageResult;)V
  */
-JNIEXPORT void JNICALL
-Java_it_davidecaroselli_jcld3_CLD3_findLanguage(JNIEnv *jvm, jobject, jlong handle, jbyteArray jtext, jobject jresult) {
+JNIEXPORT void JNICALL Java_com_github_davidecaroselli_jcld3_CLD3_findLanguage
+        (JNIEnv *jvm, jobject, jlong handle, jbyteArray jtext, jobject jresult) {
     auto *self = reinterpret_cast<NNetLanguageIdentifier *>(handle);
     string text = jni_jbytestostr(jvm, jtext);
 
@@ -69,11 +69,11 @@ Java_it_davidecaroselli_jcld3_CLD3_findLanguage(JNIEnv *jvm, jobject, jlong hand
 }
 
 /*
- * Class:     it_davidecaroselli_jcld3_CLD3
+ * Class:     com_github_davidecaroselli_jcld3_CLD3
  * Method:    findTopNMostFreqLanguage
- * Signature: (J[B[Lit/davidecaroselli/jcld3/XLanguageResult;)V
+ * Signature: (J[B[Lcom/github/davidecaroselli/jcld3/XLanguageResult;)V
  */
-JNIEXPORT void JNICALL Java_it_davidecaroselli_jcld3_CLD3_findTopNMostFreqLanguage
+JNIEXPORT void JNICALL Java_com_github_davidecaroselli_jcld3_CLD3_findTopNMostFreqLanguage
         (JNIEnv *jvm, jobject jself, jlong handle, jbyteArray jtext, jobjectArray jresults) {
     auto *self = reinterpret_cast<NNetLanguageIdentifier *>(handle);
     string text = jni_jbytestostr(jvm, jtext);
@@ -84,11 +84,11 @@ JNIEXPORT void JNICALL Java_it_davidecaroselli_jcld3_CLD3_findTopNMostFreqLangua
 }
 
 /*
- * Class:     it_davidecaroselli_jcld3_CLD3
+ * Class:     com_github_davidecaroselli_jcld3_CLD3
  * Method:    dispose
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_it_davidecaroselli_jcld3_CLD3_dispose(JNIEnv *jvm, jobject jself, jlong ptr) {
+JNIEXPORT jlong JNICALL Java_com_github_davidecaroselli_jcld3_CLD3_dispose(JNIEnv *jvm, jobject jself, jlong ptr) {
     if (ptr != 0) {
         auto *self = (NNetLanguageIdentifier *) ptr;
         delete self;

@@ -1,6 +1,6 @@
-package it.davidecaroselli.jcld3;
+package com.github.davidecaroselli.jcld3;
 
-import it.davidecaroselli.jcld3.utils.NativeUtils;
+import com.github.davidecaroselli.jcld3.utils.NativeUtils;
 
 import java.io.IOException;
 

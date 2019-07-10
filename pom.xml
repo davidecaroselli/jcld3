@@ -4,13 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>it.davidecaroselli.jcld3</groupId>
+    <groupId>com.github.davidecaroselli</groupId>
     <artifactId>jcld3</artifactId>
     <version>1.0</version>
 
     <name>jcld3</name>
     <url>https://github.com/davidecaroselli/jcld3</url>
-    <description>Java interface for the popular CLD3 project by Google</description>
+    <description>Java Native Interface for the popular Compact Language Detector v3 (CLD3) by Google</description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -72,7 +80,7 @@
                             <arguments>
                                 <argument>-d</argument>
                                 <argument>${project.nativedir.javah}</argument>
-                                <argument>it.davidecaroselli.jcld3.CLD3</argument>
+                                <argument>com.github.davidecaroselli.jcld3.CLD3</argument>
                             </arguments>
                         </configuration>
                     </execution>

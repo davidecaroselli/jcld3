@@ -1,4 +1,4 @@
-package it.davidecaroselli.jcld3;
+package com.github.davidecaroselli.jcld3;
 
 public class LanguageResult implements Comparable<LanguageResult> {
 

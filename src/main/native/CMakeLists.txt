@@ -19,7 +19,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/cld3) # needed to include genera
 include_directories(${CMAKE_SOURCE_DIR})
 add_library(jcld3 SHARED
         jniutils.h
-        javah/it_davidecaroselli_jcld3_CLD3.h it_davidecaroselli_jcld3_CLD3.cpp
+        javah/com_github_davidecaroselli_jcld3_CLD3.h com_github_davidecaroselli_jcld3_CLD3.cpp
         LanguageRegistry.cpp LanguageRegistry.h)
 
 target_link_libraries(jcld3 cld3 ${Protobuf_LITE_LIBRARIES})

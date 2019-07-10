@@ -1,4 +1,4 @@
-package it.davidecaroselli.jcld3;
+package com.github.davidecaroselli.jcld3;
 
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
