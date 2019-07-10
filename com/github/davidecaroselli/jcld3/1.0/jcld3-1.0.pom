@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.davidecaroselli</groupId>
+    <artifactId>jcld3</artifactId>
+    <version>1.0</version>
+
+    <name>jcld3</name>
+    <url>https://github.com/davidecaroselli/jcld3</url>
+    <description>Java Native Interface for the popular Compact Language Detector v3 (CLD3) by Google</description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <project.build.mvn-repo>${project.build.directory}/mvn-repo</project.build.mvn-repo>
+        <github.global.server>github</github.global.server>
+
+        <!-- Native project definitions -->
+        <project.build.native>${project.build.directory}/native</project.build.native>
+        <project.build.genResources>${project.build.directory}/generated-resources</project.build.genResources>
+        <project.nativedir>${project.basedir}/src/main/native</project.nativedir>
+        <project.nativedir.javah>${project.nativedir}/javah</project.nativedir.javah>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.mvn-repo}</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <id>get-cpu-count</id>
+                        <goals>
+                            <goal>cpu-count</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+
+                    <!-- Generate JNI Headers -->
+                    <execution>
+                        <id>javah-exec</id>
+                        <phase>generate-sources</phase>
+
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>javah</executable>
+                            <workingDirectory>${project.build.sourceDirectory}</workingDirectory>
+                            <arguments>
+                                <argument>-d</argument>
+                                <argument>${project.nativedir.javah}</argument>
+                                <argument>com.github.davidecaroselli.jcld3.CLD3</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Run CMake to generate makefile -->
+                    <execution>
+                        <id>cmake-generate</id>
+                        <phase>generate-resources</phase>
+
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>cmake</executable>
+                            <workingDirectory>${project.build.native}</workingDirectory>
+                            <arguments>
+                                <argument>-DCMAKE_BUILD_TYPE=Release</argument>
+                                <argument>-DCMAKE_INSTALL_PREFIX=${project.build.genResources}</argument>
+
+                                <argument>${project.nativedir}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Run Make to compile native project -->
+                    <execution>
+                        <id>cmake-compile</id>
+                        <phase>generate-resources</phase>
+
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>make</executable>
+                            <workingDirectory>${project.build.native}</workingDirectory>
+                            <arguments>
+                                <argument>-j${cpu.count}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- make install -->
+                    <execution>
+                        <id>cmake-install</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>make</executable>
+                            <workingDirectory>${project.build.native}</workingDirectory>
+                            <arguments>
+                                <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Github deploy -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.mvn-repo}
+                    </altDeploymentRepository>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.11</version>
+                <configuration>
+                    <message>Maven artifacts for ${project.version}</message>    <!-- git commit message -->
+                    <noJekyll>true</noJekyll>                                    <!-- disable webpage processing -->
+                    <outputDirectory>${project.build.mvn-repo}</outputDirectory>
+                    <branch>refs/heads/mvn-repo</branch>                         <!-- remote branch name -->
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <repositoryName>jcld3</repositoryName>                       <!-- github repo name -->
+                    <repositoryOwner>davidecaroselli</repositoryOwner>           <!-- github username  -->
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>${project.build.genResources}</directory>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
