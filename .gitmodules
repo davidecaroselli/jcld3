@@ -1,0 +1,3 @@
+[submodule "src/main/native/cld3"]
+	path = src/main/native/cld3
+	url = https://github.com/google/cld3.git

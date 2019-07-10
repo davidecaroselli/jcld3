@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.davidecaroselli.jcld3</groupId>
+    <artifactId>jcld3</artifactId>
+    <version>1.0</version>
+
+    <name>jcld3</name>
+    <url>https://github.com/davidecaroselli/jcld3</url>
+    <description>Java interface for the popular CLD3 project by Google</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- Native project definitions -->
+        <project.build.native>${project.build.directory}/native</project.build.native>
+        <project.build.genResources>${project.build.directory}/generated-resources</project.build.genResources>
+        <project.nativedir>${project.basedir}/src/main/native</project.nativedir>
+        <project.nativedir.javah>${project.nativedir}/javah</project.nativedir.javah>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <id>get-cpu-count</id>
+                        <goals>
+                            <goal>cpu-count</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+
+                    <!-- Generate JNI Headers -->
+                    <execution>
+                        <id>javah-exec</id>
+                        <phase>generate-sources</phase>
+
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>javah</executable>
+                            <workingDirectory>${project.build.sourceDirectory}</workingDirectory>
+                            <arguments>
+                                <argument>-d</argument>
+                                <argument>${project.nativedir.javah}</argument>
+                                <argument>it.davidecaroselli.jcld3.CLD3</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Run CMake to generate makefile -->
+                    <execution>
+                        <id>cmake-generate</id>
+                        <phase>generate-resources</phase>
+
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>cmake</executable>
+                            <workingDirectory>${project.build.native}</workingDirectory>
+                            <arguments>
+                                <argument>-DCMAKE_BUILD_TYPE=Release</argument>
+                                <argument>-DCMAKE_INSTALL_PREFIX=${project.build.genResources}</argument>
+
+                                <argument>${project.nativedir}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Run Make to compile native project -->
+                    <execution>
+                        <id>cmake-compile</id>
+                        <phase>generate-resources</phase>
+
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>make</executable>
+                            <workingDirectory>${project.build.native}</workingDirectory>
+                            <arguments>
+                                <argument>-j${cpu.count}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- make install -->
+                    <execution>
+                        <id>cmake-install</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+
+                        <configuration>
+                            <executable>make</executable>
+                            <workingDirectory>${project.build.native}</workingDirectory>
+                            <arguments>
+                                <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>${project.build.genResources}</directory>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
