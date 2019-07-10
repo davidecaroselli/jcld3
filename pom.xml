@@ -25,12 +25,23 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
+        <project.build.mvn-repo>${project.build.directory}/mvn-repo</project.build.mvn-repo>
+        <github.global.server>github</github.global.server>
+
         <!-- Native project definitions -->
         <project.build.native>${project.build.directory}/native</project.build.native>
         <project.build.genResources>${project.build.directory}/generated-resources</project.build.genResources>
         <project.nativedir>${project.basedir}/src/main/native</project.nativedir>
         <project.nativedir.javah>${project.nativedir}/javah</project.nativedir.javah>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.mvn-repo}</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>
@@ -139,6 +150,42 @@
                                 <argument>install</argument>
                             </arguments>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Github deploy -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.mvn-repo}
+                    </altDeploymentRepository>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.11</version>
+                <configuration>
+                    <message>Maven artifacts for ${project.version}</message>    <!-- git commit message -->
+                    <noJekyll>true</noJekyll>                                    <!-- disable webpage processing -->
+                    <outputDirectory>${project.build.mvn-repo}</outputDirectory>
+                    <branch>refs/heads/mvn-repo</branch>                         <!-- remote branch name -->
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <repositoryName>jcld3</repositoryName>                       <!-- github repo name -->
+                    <repositoryOwner>davidecaroselli</repositoryOwner>           <!-- github username  -->
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
                     </execution>
                 </executions>
             </plugin>
